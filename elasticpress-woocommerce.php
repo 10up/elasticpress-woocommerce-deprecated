@@ -17,10 +17,10 @@
  */
 function epwc_post_types( $post_types ) {
 	return array_unique( array_merge( $post_types, array(
-	    'shop_order',
-	    'product_variation',
-	    'product',
-    ) ) );
+		'shop_order',
+		'product_variation',
+		'product',
+	) ) );
 }
 add_filter( 'ep_indexable_post_types', 'epwc_post_types', 10, 1 );
 
