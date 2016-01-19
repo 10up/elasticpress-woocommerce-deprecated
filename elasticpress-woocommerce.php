@@ -11,7 +11,7 @@
 /**
  * Index Woocommerce post types
  *
- * @param   array $post_types
+ * @param   array $post_types Existing post types.
  * @since   1.0
  * @return  array
  */
@@ -27,7 +27,7 @@ add_filter( 'ep_indexable_post_types', 'epwc_post_types', 10, 1 );
 /**
  * Index Woocommerce post statuses
  *
- * @param   array $post_statuses
+ * @param   array $post_statuses Existing post statuses.
  * @since   1.0
  * @return  array
  */
@@ -48,8 +48,8 @@ add_filter( 'ep_indexable_post_status', 'epwc_post_statuses', 10, 1 );
 /**
  * Index Woocommerce meta
  *
- * @param   array $meta
- * @param   array $post
+ * @param   array $meta Existing post meta.
+ * @param   array $post Post arguments array.
  * @since   1.0
  * @return  array
  */
@@ -114,7 +114,7 @@ add_filter( 'ep_prepare_meta_allowed_protected_keys', 'epwc_whitelist_meta_keys'
  * Make sure all loop shop post ins are IDS. We have to pass post objects here since we override
  * the fields=>id query for the layered filter nav query
  *
- * @param   array $posts
+ * @param   array $posts Post object array.
  * @since   1.0
  * @return  array
  */
@@ -139,8 +139,8 @@ add_filter( 'woocommerce_unfiltered_product_ids', 'epwc_convert_post_object_to_i
 /**
  * Index Woocommerce taxonomies
  *
- * @param   array $taxonomies
- * @param   array $post
+ * @param   array $taxonomies Index taxonomies array.
+ * @param   array $post Post properties array.
  * @since   1.0
  * @return  array
  */
@@ -294,7 +294,7 @@ add_action( 'pre_get_posts', function( $query ) {
 		$orderby = $query->get( 'orderby' );
 
 		if ( ! empty( $orderby ) && 'rand' === $orderby ) {
-			$query->set( 'orderby', false ); // Just order by relevance
+			$query->set( 'orderby', false ); // Just order by relevance.
 		}
 	}
 }, 11, 1 );
@@ -302,8 +302,8 @@ add_action( 'pre_get_posts', function( $query ) {
 /**
  * Don't index legacy meta property. We want to to keep things light ot save space and memory.
  *
- * @param   array $post_args
- * @param   int   $post_id
+ * @param   array $post_args Post arguments to be indexed in ES.
+ * @param   int   $post_id Post ID.
  * @since   1.0
  * @return  array
  */
