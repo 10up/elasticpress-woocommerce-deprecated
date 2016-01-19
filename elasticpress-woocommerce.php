@@ -32,16 +32,16 @@ add_filter( 'ep_indexable_post_types', 'epwc_post_types', 10, 1 );
  * @return  array
  */
 function epwc_post_statuses( $post_statuses ) {
-    return array_unique( array_merge( $post_statuses, array(
-        'publish',
-        'wc-cancelled',
-        'wc-completed',
-        'wp-failed',
-        'wc-on-hold',
-        'wc-pending',
-        'wc-processing',
-        'wc-refunded',
-    ) ) );
+	return array_unique( array_merge( $post_statuses, array(
+		'publish',
+		'wc-cancelled',
+		'wc-completed',
+		'wp-failed',
+		'wc-on-hold',
+		'wc-pending',
+		'wc-processing',
+		'wc-refunded',
+	) ) );
 }
 add_filter( 'ep_indexable_post_status', 'epwc_post_statuses', 10, 1 );
 
@@ -103,7 +103,7 @@ function epwc_whitelist_meta_keys( $meta, $post ) {
 		'_min_variation_sale_price',
 		'_max_variation_sale_price',
 		'_min_sale_price_variation_id',
-		'_max_sale_price_variation_id',	
+		'_max_sale_price_variation_id',
 		'_default_attributes',
 		'_swatch_type_options',
 	) ) );
@@ -151,12 +151,12 @@ function epwc_whitelist_taxonomies( $taxonomies, $post ) {
 	$woo_taxonomies[] = $product_type;
 
 	/**
-	 * Note product_shipping_class, product_cat, and product_tag are already public. Make 
+	 * Note product_shipping_class, product_cat, and product_tag are already public. Make
 	 * sure to index non-public attribute taxonomies.
 	 */
 	if ( $attribute_taxonomies = wc_get_attribute_taxonomies() ) {
 		foreach ( $attribute_taxonomies as $tax ) {
-			if( $name = wc_attribute_taxonomy_name( $tax->attribute_name ) ) {
+			if ( $name = wc_attribute_taxonomy_name( $tax->attribute_name ) ) {
 				if ( empty( $tax->attribute_public ) ) {
 					$woo_taxonomies[] = get_taxonomy( $name );
 				}
@@ -297,14 +297,13 @@ add_action( 'pre_get_posts', function( $query ) {
 			$query->set( 'orderby', false ); // Just order by relevance
 		}
 	}
-
 }, 11, 1 );
 
 /**
  * Don't index legacy meta property. We want to to keep things light ot save space and memory.
  *
  * @param   array $post_args
- * @param   int $post_id
+ * @param   int   $post_id
  * @since   1.0
  * @return  array
  */
