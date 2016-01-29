@@ -171,7 +171,8 @@ add_filter( 'ep_sync_taxonomies', 'epwc_whitelist_taxonomies', 10, 2 );
 /**
  * Translate args to ElasticPress compat format
  */
-add_action( 'pre_get_posts', function( $query ) {
+function epwc_translate_args( $query ) {
+
 	$product_name = $query->get( 'product', false );
 
 	/**
@@ -193,12 +194,15 @@ add_action( 'pre_get_posts', function( $query ) {
 		'pa_sort-by',
 	);
 
-	/**
-	 * First check if already set taxonmies are supported WC taxes
-	 */
-	foreach ( $tax_query as $taxonomy_array ) {
-		if ( in_array( $taxonomy_array['taxonomy'], $supported_taxonomies ) ) {
-			$query->query['ep_integrate'] = true;
+	if ( ! empty( $tax_query ) ) {
+
+		/**
+		 * First check if already set taxonomies are supported WC taxes
+		 */
+		foreach ( $tax_query as $taxonomy_array ) {
+			if ( isset( $taxonomy_array['taxonomy'] ) && in_array( $taxonomy_array['taxonomy'], $supported_taxonomies ) ) {
+				$query->query['ep_integrate'] = true;
+			}
 		}
 	}
 
@@ -209,7 +213,6 @@ add_action( 'pre_get_posts', function( $query ) {
 		$term = $query->get( $taxonomy, false );
 
 		if ( ! empty( $term ) ) {
-
 			$query->query['ep_integrate'] = true;
 
 			$tax_query[] = array(
@@ -297,7 +300,8 @@ add_action( 'pre_get_posts', function( $query ) {
 			$query->set( 'orderby', false ); // Just order by relevance.
 		}
 	}
-}, 11, 1 );
+}
+add_action( 'pre_get_posts', 'epwc_translate_args', 11, 1 );
 
 /**
  * Don't index legacy meta property. We want to to keep things light ot save space and memory.
