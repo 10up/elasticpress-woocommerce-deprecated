@@ -174,6 +174,9 @@ add_filter( 'ep_sync_taxonomies', 'epwc_whitelist_taxonomies', 10, 2 );
  */
 function epwc_translate_args( $query ) {
 
+	/**
+	 * Do nothing if we are not on a search query
+	 */
 	if ( !$query->is_search() ) {
 		return;
 	}
@@ -270,6 +273,7 @@ function epwc_translate_args( $query ) {
 			case 'rating' :
 				$query->set( 'orderby', 'meta._wc_average_rating.double' );
 				$query->set( 'order', 'desc' );
+				break;
 		}
 	}
 
@@ -291,7 +295,7 @@ function epwc_update_popularity( $order_id, $order, $update ) {
 
 		$post_type = get_post_type( $order );
 
-		// Only handle re-syncing of products when orders are punched
+		// Only handle re-syncing of product when orders are punched
 		if ( 'shop_order' === $post_type ) {
 
 			$order = new WC_Order( $order_id );
@@ -327,8 +331,12 @@ function epwc_update_rating( $meta_id, $object_id, $meta_key, $_meta_value ){
 	// Check if we have WooCommerce activated
 	if ( class_exists( 'WC_Order' ) ) {
 
+		// Only handle re-syncing of product when rating is updated
 		if ( '_wc_average_rating' === $meta_key ) {
+
 			$post_type = get_post_type( $object_id );
+
+			// Cross check if we have a product post type
 			if ( 'product' === $post_type ) {
 
 				$post_args = ep_prepare_post( $object_id );
