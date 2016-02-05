@@ -89,6 +89,7 @@ function epwc_whitelist_meta_keys( $meta, $post ) {
 		'_override_tab_layout',
 		'_suggested_price',
 		'_min_price',
+		'_wc_average_rating',
 		'_variable_billing',
 		'_product_image_gallery',
 		'_bj_lazy_load_skip_post',
@@ -173,6 +174,10 @@ add_filter( 'ep_sync_taxonomies', 'epwc_whitelist_taxonomies', 10, 2 );
  */
 function epwc_translate_args( $query ) {
 
+	if ( !$query->is_search() ) {
+		return;
+	}
+
 	$product_name = $query->get( 'product', false );
 
 	/**
@@ -194,18 +199,6 @@ function epwc_translate_args( $query ) {
 		'pa_sort-by',
 	);
 
-	if ( ! empty( $tax_query ) ) {
-
-		/**
-		 * First check if already set taxonomies are supported WC taxes
-		 */
-		foreach ( $tax_query as $taxonomy_array ) {
-			if ( isset( $taxonomy_array['taxonomy'] ) && in_array( $taxonomy_array['taxonomy'], $supported_taxonomies ) ) {
-				$query->query['ep_integrate'] = true;
-			}
-		}
-	}
-
 	/**
 	 * Next check if any taxonomies are in the root of query vars (shorthand form)
 	 */
@@ -213,7 +206,6 @@ function epwc_translate_args( $query ) {
 		$term = $query->get( $taxonomy, false );
 
 		if ( ! empty( $term ) ) {
-			$query->query['ep_integrate'] = true;
 
 			$tax_query[] = array(
 				'taxonomy' => $taxonomy,
@@ -228,80 +220,131 @@ function epwc_translate_args( $query ) {
 	}
 
 	/**
-	 * Force ElasticPress if product post type query
+	 * Make sure filters are suppressed
 	 */
-	$supported_post_types = array(
-		'product',
-	);
+	$query->query['suppress_filters'] = false;
+	$query->set( 'suppress_filters', false );
 
-	$post_type = $query->get( 'post_type', false );
-	if ( ! empty( $post_type ) && in_array( $post_type, $supported_post_types ) ) {
-		$query->query['ep_integrate'] = true;
+	/**
+	 * We can't support any special fields parameters
+	 */
+	$fields = $query->get( 'fields', false );
+	if ( 'ids' === $fields || 'id=>parent' === $fields ) {
+		$query->set( 'fields', 'default' );
 	}
 
 	/**
-	 * If we have an ElasticPress query, do the following:
+	 * Handle meta queries
 	 */
-	if ( ! empty( $query->query['ep_integrate'] ) ) {
-		/**
-		 * Make sure filters are suppressed
-		 */
-		$query->query['suppress_filters'] = false;
-		$query->set( 'suppress_filters', false );
+	$meta_query = $query->get( 'meta_query', array() );
+	$meta_key = $query->get( 'meta_key', false );
+	$meta_value = $query->get( 'meta_value', false );
 
-		/**
-		 * We can't support any special fields parameters
-		 */
-		$fields = $query->get( 'fields', false );
-		if ( 'ids' === $fields || 'id=>parent' === $fields ) {
-			$query->set( 'fields', 'default' );
+	if ( ! empty( $meta_key ) && ! empty( $meta_value ) ) {
+		$meta_query[] = array(
+			'key' => $meta_key,
+			'value' => $meta_value,
+		);
+
+		$query->set( 'meta_query', $meta_query );
+	}
+
+	/**
+	 * Set orderby from GET param
+	 */
+	if ( ! empty( $_GET['orderby'] ) ) {
+
+		switch ( $_GET['orderby'] ) {
+			case 'popularity':
+				$query->set( 'orderby', 'meta.total_sales.long' );
+				$query->set( 'order', 'desc' );
+				break;
+			case 'price':
+				$query->set( 'orderby', 'meta._price.long' );
+				$query->set( 'order', 'asc' );
+				break;
+			case 'price-desc':
+				$query->set( 'orderby', 'meta._price.long' );
+				$query->set( 'order', 'desc' );
+				break;
+			case 'rating' :
+				$query->set( 'orderby', 'meta._wc_average_rating.double' );
+				$query->set( 'order', 'desc' );
 		}
+	}
 
-		/**
-		 * Handle meta queries
-		 */
-		$meta_query = $query->get( 'meta_query', array() );
-		$meta_key = $query->get( 'meta_key', false );
-		$meta_value = $query->get( 'meta_value', false );
+	$orderby = $query->get( 'orderby' );
 
-		if ( ! empty( $meta_key ) && ! empty( $meta_value ) ) {
-			$meta_query[] = array(
-				'key' => $meta_key,
-				'value' => $meta_value,
-			);
-
-			$query->set( 'meta_query', $meta_query );
-		}
-
-		/**
-		 * Set orderby from GET param
-		 */
-		if ( ! empty( $_GET['orderby'] ) ) {
-
-			switch ( $_GET['orderby'] ) {
-				case 'popularity':
-					$query->set( 'orderby', 'meta.total_sales.long' );
-					$query->set( 'order', 'desc' );
-					break;
-				case 'price':
-					$query->set( 'orderby', 'meta._price.long' );
-					$query->set( 'order', 'asc' );
-					break;
-				case 'price-desc':
-					$query->set( 'orderby', 'meta._price.long' );
-					$query->set( 'order', 'desc' );
-					break;
-			}
-		}
-
-		$orderby = $query->get( 'orderby' );
-
-		if ( ! empty( $orderby ) && 'rand' === $orderby ) {
-			$query->set( 'orderby', false ); // Just order by relevance.
-		}
+	if ( ! empty( $orderby ) && 'rand' === $orderby ) {
+		$query->set( 'orderby', false ); // Just order by relevance.
 	}
 }
 add_action( 'pre_get_posts', 'epwc_translate_args', 11, 1 );
+
+/**
+ * Re-index product when order is punched
+ */
+function epwc_update_popularity( $order_id, $order, $update ) {
+
+	// Check if we have WooCommerce activated
+	if ( class_exists( 'WC_Order' ) ) {
+
+		$post_type = get_post_type( $order );
+
+		// Only handle re-syncing of products when orders are punched
+		if ( 'shop_order' === $post_type ) {
+
+			$order = new WC_Order( $order_id );
+			$items = $order->get_items();
+
+			// Ignore checking of post status of order as popularity is determined by product total_sales
+			foreach ( $items as $item ) {
+
+				if ( isset( $item['product_id'] ) ) {
+
+					$post_id = $item['product_id'];
+
+					$post_args = ep_prepare_post( $post_id );
+
+					if ( apply_filters( 'ep_post_sync_kill', false, $post_args, $post_id ) ) {
+						return;
+					}
+
+					ep_index_post( $post_args, false );
+				}
+
+			}
+		}
+	}
+}
+add_action( 'wp_insert_post', 'epwc_update_popularity', 1000, 3 );
+
+/**
+ * Re-index product when reviewed and rating is provided
+ */
+function epwc_update_rating( $meta_id, $object_id, $meta_key, $_meta_value ){
+
+	// Check if we have WooCommerce activated
+	if ( class_exists( 'WC_Order' ) ) {
+
+		if ( '_wc_average_rating' === $meta_key ) {
+			$post_type = get_post_type( $object_id );
+			if ( 'product' === $post_type ) {
+
+				$post_args = ep_prepare_post( $object_id );
+
+				if ( apply_filters( 'ep_post_sync_kill', false, $post_args, $object_id ) ) {
+					return;
+				}
+
+				ep_index_post( $post_args, false );
+			}
+		}
+	}
+
+}
+add_action( 'added_post_meta', 'epwc_update_rating', 11, 4 );
+add_action( 'updated_post_meta', 'epwc_update_rating', 11, 4 );
 
 /**
  * Don't index legacy meta property. We want to to keep things light ot save space and memory.
