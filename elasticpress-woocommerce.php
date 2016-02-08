@@ -327,4 +327,16 @@ add_filter( 'ep_post_sync_args_post_prepare_meta', 'epwc_remove_legacy_meta', 10
  */
 add_filter( 'ep_admin_wp_query_integration', '__return_true' );
 
+/**
+ * Index all post statuses
+ *
+ * @since  1.0
+ * @param array $statuses Current EP statuses.
+ */
+function epwc_index_all_statuses( $statuses ) {
+	return array_values( get_post_stati() );
+}
+add_filter( 'ep_indexable_post_status', 'epwc_index_all_statuses' );
+
+
 
