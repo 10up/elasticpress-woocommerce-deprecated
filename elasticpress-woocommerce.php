@@ -201,7 +201,7 @@ function epwc_translate_args( $query ) {
 		 */
 		foreach ( $tax_query as $taxonomy_array ) {
 			if ( isset( $taxonomy_array['taxonomy'] ) && in_array( $taxonomy_array['taxonomy'], $supported_taxonomies ) ) {
-				$query->query['ep_integrate'] = true;
+				$query->query_vars['ep_integrate'] = true;
 			}
 		}
 	}
@@ -213,7 +213,7 @@ function epwc_translate_args( $query ) {
 		$term = $query->get( $taxonomy, false );
 
 		if ( ! empty( $term ) ) {
-			$query->query['ep_integrate'] = true;
+			$query->query_vars['ep_integrate'] = true;
 
 			$tax_query[] = array(
 				'taxonomy' => $taxonomy,
@@ -236,13 +236,13 @@ function epwc_translate_args( $query ) {
 
 	$post_type = $query->get( 'post_type', false );
 	if ( ! empty( $post_type ) && in_array( $post_type, $supported_post_types ) ) {
-		$query->query['ep_integrate'] = true;
+		$query->query_vars['ep_integrate'] = true;
 	}
 
 	/**
 	 * If we have an ElasticPress query, do the following:
 	 */
-	if ( ! empty( $query->query['ep_integrate'] ) ) {
+	if ( ! empty( $query->query_vars['ep_integrate'] ) ) {
 		/**
 		 * Make sure filters are suppressed
 		 */
