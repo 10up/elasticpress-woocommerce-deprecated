@@ -202,10 +202,25 @@ function epwc_translate_args( $query ) {
 		if ( ! empty( $term ) ) {
 			$query->query_vars['ep_integrate'] = true;
 
+			$terms = array( $term );
+
+			// to add child terms to the tax query
+			if ( is_taxonomy_hierarchical( $taxonomy ) ) {
+				$term_object = get_term_by( 'slug', $term, $taxonomy );
+				$children    = get_term_children( $term_object->term_id, $taxonomy );
+				if ( $children ) {
+					foreach ( $children as $child ) {
+						$child_object = get_term( $child, $taxonomy );
+						$terms[]      = $child_object->slug;
+					}
+				}
+
+			}
+
 			$tax_query[] = array(
 				'taxonomy' => $taxonomy,
 				'field'    => 'slug',
-				'terms'    => array( $term ),
+				'terms'    => $terms,
 			);
 		}
 	}
@@ -265,10 +280,8 @@ function epwc_translate_args( $query ) {
 			$query->set( 'meta_query', $meta_query );
 		}
 
-		$post_parent = $query->get( 'post_parent', false );
-
-
-		if ( 'product' === $post_type ) {
+		// Assuming empty to be product post type
+		if ( empty( $post_type ) ) {
 			/**
 			 * Set orderby from GET param
 			 */
