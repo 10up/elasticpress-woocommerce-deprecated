@@ -280,8 +280,8 @@ function epwc_translate_args( $query ) {
 			$query->set( 'meta_query', $meta_query );
 		}
 
-		// Assuming empty to be product post type
-		if ( empty( $post_type ) ) {
+		// Assuming $post_type to be product if empty
+		if ( empty( $post_type ) || 'product' === $post_type ) {
 			/**
 			 * Set orderby from GET param
 			 */
