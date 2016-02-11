@@ -309,13 +309,19 @@ function epwc_translate_args( $query ) {
 						$query->set( 'order', 'desc' );
 						break;
 					default:
-						$query->set( 'orderby', 'menu_order title date meta._price.long' ); // Order by menu and title.
+						$query->set( 'orderby', 'menu_order title date' ); // Order by menu and title.
 						$query->set( 'order', 'asc' );
 				}
 			} else {
-				$query->set( 'orderby', 'menu_order title date meta._price.long' ); // Order by menu and title.
-				$query->set( 'order', 'asc' );
+					$query->set( 'orderby', 'menu_order title date' ); // Order by menu and title.
+					$query->set( 'order', 'asc' );
 			}
+		} // Conditional check for orders
+		elseif ( in_array( $post_type, array( 'shop_order', 'shop_order_refund' ) ) || ( is_array( $post_type ) && ! array_diff( $post_type, $supported_post_types ) ) ) {
+			$query->set( 'order', 'desc' );
+		} elseif ( 'product_variation' === $post_type ) {
+			$query->set( 'orderby', 'menu_order' );
+			$query->set( 'order', 'asc' );
 		}
 
 		$orderby = $query->get( 'orderby' );
