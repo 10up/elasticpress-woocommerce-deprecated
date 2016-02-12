@@ -1,6 +1,6 @@
 === ElasticPress WooCommerce ===
 Contributors: tlovett1, joshuaabenazer, 10up
-Tags: debug, woocommerce, elasticpress, elasticsearch, commerce, search filters
+Tags: debug, woocommerce, elasticpress, elasticsearch, ecommerce, search filters
 Requires at least: 3.7.1
 Tested up to: 4.5
 Stable tag: trunk
