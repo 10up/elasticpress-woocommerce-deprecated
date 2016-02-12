@@ -1,6 +1,6 @@
 === ElasticPress WooCommerce ===
-Contributors: tlovett1, 10up
-Tags: debug, debug bar, elasticpress, elasticsearch
+Contributors: tlovett1, joshuaabenazer, 10up
+Tags: debug, woocommerce, elasticpress, elasticsearch, commerce, search filters
 Requires at least: 3.7.1
 Tested up to: 4.5
 Stable tag: trunk
@@ -15,7 +15,7 @@ A WordPress plugin that integrates [ElasticPress](https://github.com/10up/Elasti
 
 * [ElasticPress 1.8+](https://wordpress.org/plugins/elasticpress)
 * [Debug Bar 0.8.2+](https://wordpress.org/plugins/debug-bar/)
-* PHP 5.4+
+* PHP 5.2.4+
 
 == Installation ==
 1. Install [ElasticPress](https://wordpress.org/plugins/elasticpress).
