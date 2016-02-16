@@ -251,6 +251,12 @@ function epwc_translate_args( $query ) {
 	 */
 	if ( ! empty( $query->query_vars['ep_integrate'] ) ) {
 
+		if ( has_filter( 'posts_clauses', array( WC()->query, 'order_by_rating_post_clauses' ) ) ) {
+			remove_filter( 'posts_clauses', array( WC()->query, 'order_by_rating_post_clauses' ) );
+			$query->set( 'orderby', 'meta_value_num' );
+			$query->set( 'meta_key', '_wc_average_rating' );
+		}
+
 		/**
 		 * Make sure filters are suppressed
 		 */
