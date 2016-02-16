@@ -169,6 +169,9 @@ function epwc_translate_args( $query ) {
 		return;
 	}
 
+	// Flag to check and make sure we are in a WooCommerce specific query
+	$epwc_integrate = false;
+
 	/**
 	 * Force ElasticPress if we are querying WC taxonomy
 	 */
@@ -188,7 +191,7 @@ function epwc_translate_args( $query ) {
 		 */
 		foreach ( $tax_query as $taxonomy_array ) {
 			if ( isset( $taxonomy_array['taxonomy'] ) && in_array( $taxonomy_array['taxonomy'], $supported_taxonomies ) ) {
-				$query->query_vars['ep_integrate'] = true;
+				$epwc_integrate = true;
 			}
 		}
 	}
@@ -200,12 +203,27 @@ function epwc_translate_args( $query ) {
 		$term = $query->get( $taxonomy, false );
 
 		if ( ! empty( $term ) ) {
-			$query->query_vars['ep_integrate'] = true;
+			$epwc_integrate = true;
+
+			$terms = array( $term );
+
+			// to add child terms to the tax query
+			if ( is_taxonomy_hierarchical( $taxonomy ) ) {
+				$term_object = get_term_by( 'slug', $term, $taxonomy );
+				$children    = get_term_children( $term_object->term_id, $taxonomy );
+				if ( $children ) {
+					foreach ( $children as $child ) {
+						$child_object = get_term( $child, $taxonomy );
+						$terms[]      = $child_object->slug;
+					}
+				}
+
+			}
 
 			$tax_query[] = array(
 				'taxonomy' => $taxonomy,
 				'field'    => 'slug',
-				'terms'    => array( $term ),
+				'terms'    => $terms,
 			);
 		}
 	}
@@ -228,13 +246,23 @@ function epwc_translate_args( $query ) {
 
 	// For orders it queries an array of shop_order and shop_order_refund post types, hence an array_diff
 	if ( ! empty( $post_type ) && ( in_array( $post_type, $supported_post_types ) || ( is_array( $post_type ) && ! array_diff( $post_type, $supported_post_types ) ) ) ) {
-		$query->query_vars['ep_integrate'] = true;
+		$epwc_integrate = true;
 	}
 
 	/**
-	 * If we have an ElasticPress query, do the following:
+	 * If we have a WooCommerce specific query, lets hook it to ElasticPress and make the query ElasticSearch friendly
 	 */
-	if ( ! empty( $query->query_vars['ep_integrate'] ) ) {
+	if ( $epwc_integrate ) {
+
+		$query->query_vars['ep_integrate'] = true;
+
+		// Handles the WC Top Rated Widget
+		if ( has_filter( 'posts_clauses', array( WC()->query, 'order_by_rating_post_clauses' ) ) ) {
+			remove_filter( 'posts_clauses', array( WC()->query, 'order_by_rating_post_clauses' ) );
+			$query->set( 'orderby', 'meta_value_num' );
+			$query->set( 'meta_key', '_wc_average_rating' );
+		}
+
 		/**
 		 * Make sure filters are suppressed
 		 */
@@ -265,44 +293,47 @@ function epwc_translate_args( $query ) {
 			$query->set( 'meta_query', $meta_query );
 		}
 
-		$post_parent = $query->get( 'post_parent', false );
+		// Assuming $post_type to be product if empty
+		if ( empty( $post_type ) || 'product' === $post_type ) {
 
-
-		if ( 'product' === $post_type ) {
 			/**
 			 * Set orderby from GET param
+			 * Also make sure the orderby param affects only the main query
 			 */
-			if ( ! empty( $_GET['orderby'] ) ) {
+			if ( ! empty( $_GET['orderby'] ) && $query->is_main_query() ) {
 
 				switch ( $_GET['orderby'] ) {
 					case 'popularity':
-						$query->set( 'orderby', 'meta.total_sales.long date' );
+						$query->set( 'orderby', epwc_get_orderby_meta_mapping( 'total_sales' ) );
 						$query->set( 'order', 'desc' );
 						break;
 					case 'price':
-						$query->set( 'orderby', 'meta._price.long date' );
-						$query->set( 'order', 'asc' );
-						break;
 					case 'price-desc':
-						$query->set( 'orderby', 'meta._price.long date' );
-						$query->set( 'order', 'desc' );
+						$query->set( 'orderby', epwc_get_orderby_meta_mapping( '_price' ) );
 						break;
 					case 'rating' :
-						$query->set( 'orderby', 'meta._wc_average_rating.double date' );
+						$query->set( 'orderby', epwc_get_orderby_meta_mapping( '_wc_average_rating' ) );
 						$query->set( 'order', 'desc' );
 						break;
 					case 'date':
-						$query->set( 'orderby', 'date' );
-						$query->set( 'order', 'desc' );
+						$query->set( 'orderby', epwc_get_orderby_meta_mapping( 'date' ) );
 						break;
 					default:
-						$query->set( 'orderby', 'menu_order title date meta._price.long' ); // Order by menu and title.
-						$query->set( 'order', 'asc' );
+						$query->set( 'orderby', epwc_get_orderby_meta_mapping( 'menu_order' ) ); // Order by menu and title.
 				}
 			} else {
-				$query->set( 'orderby', 'menu_order title date meta._price.long' ); // Order by menu and title.
-				$query->set( 'order', 'asc' );
+				$orderby = $query->get( 'orderby', 'date' ); // Default to date
+				if ( in_array( $orderby, array( 'meta_value_num', 'meta_value' ) ) ) {
+					$orderby = $query->get( 'meta_key', 'date' ); // Default to date
+				}
+				$query->set( 'orderby', epwc_get_orderby_meta_mapping( $orderby ) );
 			}
+		} // Conditional check for orders
+		elseif ( in_array( $post_type, array( 'shop_order', 'shop_order_refund' ) ) || $post_type === array( 'shop_order', 'shop_order_refund' ) ) {
+			$query->set( 'order', 'desc' );
+		} elseif ( 'product_variation' === $post_type ) {
+			$query->set( 'orderby', 'menu_order' );
+			$query->set( 'order', 'asc' );
 		}
 
 		$orderby = $query->get( 'orderby' );
@@ -313,6 +344,29 @@ function epwc_translate_args( $query ) {
 	}
 }
 add_action( 'pre_get_posts', 'epwc_translate_args', 11, 1 );
+
+/**
+ * Fetch the ES related meta mapping for orderby
+ *
+ * @param  $meta_key The meta key to get the mapping for.
+ * @return string    The mapped meta key.
+ */
+function epwc_get_orderby_meta_mapping( $meta_key ) {
+	$mapping = apply_filters( 'epwc_orderby_meta_mapping',
+		array(
+			'menu_order'         => 'menu_order title date',
+			'menu_order title'   => 'menu_order title date',
+			'total_sales'        => 'meta.total_sales.long date',
+			'_wc_average_rating' => 'meta._wc_average_rating.double date',
+			'_price'             => 'meta._price.long date',
+		) );
+
+	if ( isset( $mapping[ $meta_key ] ) ) {
+		return $mapping[ $meta_key ];
+	}
+
+	return 'date';
+}
 
 /**
  * Don't index legacy meta property. We want to to keep things light ot save space and memory.
