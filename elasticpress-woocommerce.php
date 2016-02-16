@@ -169,6 +169,9 @@ function epwc_translate_args( $query ) {
 		return;
 	}
 
+	// Flag to check and make sure we are in a WooCommerce specific query
+	$epwc_integrate = false;
+
 	/**
 	 * Force ElasticPress if we are querying WC taxonomy
 	 */
@@ -188,7 +191,7 @@ function epwc_translate_args( $query ) {
 		 */
 		foreach ( $tax_query as $taxonomy_array ) {
 			if ( isset( $taxonomy_array['taxonomy'] ) && in_array( $taxonomy_array['taxonomy'], $supported_taxonomies ) ) {
-				$query->query_vars['ep_integrate'] = true;
+				$epwc_integrate = true;
 			}
 		}
 	}
@@ -200,7 +203,7 @@ function epwc_translate_args( $query ) {
 		$term = $query->get( $taxonomy, false );
 
 		if ( ! empty( $term ) ) {
-			$query->query_vars['ep_integrate'] = true;
+			$epwc_integrate = true;
 
 			$terms = array( $term );
 
@@ -243,14 +246,17 @@ function epwc_translate_args( $query ) {
 
 	// For orders it queries an array of shop_order and shop_order_refund post types, hence an array_diff
 	if ( ! empty( $post_type ) && ( in_array( $post_type, $supported_post_types ) || ( is_array( $post_type ) && ! array_diff( $post_type, $supported_post_types ) ) ) ) {
-		$query->query_vars['ep_integrate'] = true;
+		$epwc_integrate = true;
 	}
 
 	/**
-	 * If we have an ElasticPress query, do the following:
+	 * If we have a WooCommerce specific query, lets hook it to ElasticPress and make the query ElasticSearch friendly
 	 */
-	if ( ! empty( $query->query_vars['ep_integrate'] ) ) {
+	if ( $epwc_integrate ) {
 
+		$query->query_vars['ep_integrate'] = true;
+
+		// Handles the WC Top Rated Widget
 		if ( has_filter( 'posts_clauses', array( WC()->query, 'order_by_rating_post_clauses' ) ) ) {
 			remove_filter( 'posts_clauses', array( WC()->query, 'order_by_rating_post_clauses' ) );
 			$query->set( 'orderby', 'meta_value_num' );
