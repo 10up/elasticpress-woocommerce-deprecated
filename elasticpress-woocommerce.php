@@ -250,6 +250,7 @@ function epwc_translate_args( $query ) {
 	 * If we have an ElasticPress query, do the following:
 	 */
 	if ( ! empty( $query->query_vars['ep_integrate'] ) ) {
+
 		/**
 		 * Make sure filters are suppressed
 		 */
@@ -281,13 +282,13 @@ function epwc_translate_args( $query ) {
 		}
 
 		// Assuming $post_type to be product if empty
-		// Also make sure the orderby param affects only the main query
-		if ( $query->is_main_query() && ( empty( $post_type ) || 'product' === $post_type ) ) {
+		if ( empty( $post_type ) || 'product' === $post_type ) {
 
 			/**
 			 * Set orderby from GET param
+			 * Also make sure the orderby param affects only the main query
 			 */
-			if ( ! empty( $_GET['orderby'] ) ) {
+			if ( ! empty( $_GET['orderby'] ) && $query->is_main_query() ) {
 
 				switch ( $_GET['orderby'] ) {
 					case 'popularity':
