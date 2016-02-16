@@ -281,7 +281,9 @@ function epwc_translate_args( $query ) {
 		}
 
 		// Assuming $post_type to be product if empty
-		if ( empty( $post_type ) || 'product' === $post_type ) {
+		// Also make sure the orderby param affects only the main query
+		if ( $query->is_main_query() && ( empty( $post_type ) || 'product' === $post_type ) ) {
+
 			/**
 			 * Set orderby from GET param
 			 */
