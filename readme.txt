@@ -14,7 +14,6 @@ A WordPress plugin that integrates [ElasticPress](https://github.com/10up/Elasti
 = Requirements: =
 
 * [ElasticPress 1.8+](https://wordpress.org/plugins/elasticpress)
-* [Debug Bar 0.8.2+](https://wordpress.org/plugins/debug-bar/)
 * PHP 5.2.4+
 
 == Installation ==
