@@ -416,7 +416,7 @@ add_filter( 'ep_indexable_post_status', 'epwc_get_statuses' );
 function epwc_formatted_args( $formatted_args, $args ) {
 
 	if ( is_admin() ) {
-		if ( isset( $_GET['post_status'] ) ) {
+		if ( isset( $_GET['post_status'] ) && 'all' !== $_GET['post_status'] ) {
 			$post_status = array( $_GET['post_status'] );
 		} else {
 			$post_status = epwc_get_statuses();
