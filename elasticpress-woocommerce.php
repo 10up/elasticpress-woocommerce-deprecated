@@ -2,7 +2,7 @@
 /**
  * Plugin Name: ElasticPress WooCommerce
  * Description: Integrate ElasticPress and Elasticsearch with WooCommerce
- * Version:     1.1
+ * Version:     1.1.1
  * Author:      Taylor Lovett, 10up
  * Author URI:  http://10up.com
  * License:     GPLv2 or later
@@ -423,7 +423,7 @@ function epwc_formatted_args( $formatted_args, $args ) {
 
 			// Lets make sure the thrashed posts are not accounted for in the default edit post listing
 			$trash_index = array_search( 'trash', $post_status );
-			if ( $trash ) {
+			if ( $trash_index ) {
 				unset( $post_status[ $trash_index ] );
 			}
 		}

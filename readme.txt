@@ -23,5 +23,12 @@ A WordPress plugin that integrates [ElasticPress](https://github.com/10up/Elasti
 
 == Changelog ==
 
+= 1.1.1 =
+* Fix undefined variable warning
+
+= 1.1 =
+* Properly support search in admin
+* Properly index product/order post statuses
+
 = 1.0 =
 * Initial release
