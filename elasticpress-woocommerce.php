@@ -2,7 +2,7 @@
 /**
  * Plugin Name: ElasticPress WooCommerce
  * Description: Integrate ElasticPress and Elasticsearch with WooCommerce
- * Version:     1.0
+ * Version:     1.1
  * Author:      Taylor Lovett, 10up
  * Author URI:  http://10up.com
  * License:     GPLv2 or later

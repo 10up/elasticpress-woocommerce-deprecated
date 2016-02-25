@@ -10,7 +10,7 @@ A WordPress plugin that integrates [ElasticPress](https://github.com/10up/Elasti
 
 ## Usage
 
-Install and activate [ElasticPress](https://github.com/10up/ElasticPress). Install and activate ElasticPress WooCommerce. 
+Install and activate [ElasticPress](https://github.com/10up/ElasticPress). Install and activate ElasticPress WooCommerce. Note that if you had previously been using ElasticPress, you should re-index after activating ElasticPress WooCommerce.
 
 ## Issues
 
