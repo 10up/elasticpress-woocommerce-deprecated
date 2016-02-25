@@ -393,12 +393,12 @@ add_filter( 'ep_post_sync_args_post_prepare_meta', 'epwc_remove_legacy_meta', 10
 add_filter( 'ep_admin_wp_query_integration', '__return_true' );
 
 /**
- * Index all post statuses ( except auto-draft )
+ * Fetches all necessary WooCommerce related post statuses
  *
  * @since  1.0
  * @param array $statuses Current EP statuses.
  */
-function epwc_index_all_statuses( $statuses ) {
+function epwc_get_statuses( $statuses ) {
 	$post_statuses = get_post_stati();
 
 	// Lets make sure the auto-draft posts are not indexed
@@ -409,7 +409,7 @@ function epwc_index_all_statuses( $statuses ) {
 
 	return array_values( $post_statuses );
 }
-add_filter( 'ep_indexable_post_status', 'epwc_index_all_statuses' );
+add_filter( 'ep_indexable_post_status', 'epwc_get_statuses' );
 
 /**
  * Handle Woo Commerce related formatted args
@@ -419,9 +419,18 @@ add_filter( 'ep_indexable_post_status', 'epwc_index_all_statuses' );
  * @return array
  */
 function epwc_formatted_args( $formatted_args, $args ) {
+
 	if ( is_admin() ) {
 		if ( isset( $_GET['post_status'] ) ) {
 			$post_status = array( $_GET['post_status'] );
+		} else {
+			$post_status = epwc_get_statuses( false );
+			// Lets make sure the thrashed posts are not accounted for in the default edit post listing
+			$trash = array_search( 'trash', $post_status );
+			if ( $trash ) {
+				unset( $post_status[ $trash ] );
+				$post_status = array_values( $post_status );
+			}
 		}
 	} else {
 
@@ -447,6 +456,7 @@ function epwc_formatted_args( $formatted_args, $args ) {
 		}
 	}
 
+	// Add post status detail to the query.
 	if ( $post_status ) {
 		$formatted_args['filter']['and'][] = array(
 			'terms' => array( 'post_status' => $post_status ),
