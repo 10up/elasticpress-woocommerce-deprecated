@@ -396,16 +396,11 @@ add_filter( 'ep_admin_wp_query_integration', '__return_true' );
  * Fetches all necessary WooCommerce related post statuses
  *
  * @since  1.0
- * @param array $statuses Current EP statuses.
  */
-function epwc_get_statuses( $statuses ) {
+function epwc_get_statuses() {
 	$post_statuses = get_post_stati();
 
-	// Lets make sure the auto-draft posts are not indexed
-	$auto_draft_index = array_search( 'auto-draft', $post_statuses );
-	if ( $auto_draft_index ) {
-		unset( $post_statuses[ $auto_draft_index ] );
-	}
+	unset( $post_statuses['auto-draft'] );
 
 	return array_values( $post_statuses );
 }
@@ -424,12 +419,12 @@ function epwc_formatted_args( $formatted_args, $args ) {
 		if ( isset( $_GET['post_status'] ) ) {
 			$post_status = array( $_GET['post_status'] );
 		} else {
-			$post_status = epwc_get_statuses( false );
+			$post_status = epwc_get_statuses();
+
 			// Lets make sure the thrashed posts are not accounted for in the default edit post listing
-			$trash = array_search( 'trash', $post_status );
+			$trash_index = array_search( 'trash', $post_status );
 			if ( $trash ) {
-				unset( $post_status[ $trash ] );
-				$post_status = array_values( $post_status );
+				unset( $post_status[ $trash_index ] );
 			}
 		}
 	} else {
