@@ -255,6 +255,7 @@ function epwc_translate_args( $query ) {
 	if ( $epwc_integrate ) {
 
 		$query->query_vars['ep_integrate'] = true;
+		$query->query['ep_integrate'] = true;
 
 		// Handles the WC Top Rated Widget
 		if ( has_filter( 'posts_clauses', array( WC()->query, 'order_by_rating_post_clauses' ) ) ) {
