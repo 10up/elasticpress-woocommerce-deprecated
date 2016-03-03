@@ -23,6 +23,10 @@ A WordPress plugin that integrates [ElasticPress](https://github.com/10up/Elasti
 
 == Changelog ==
 
+= 1.1.2 =
+* Fix post status indexes term search in admin
+* Set ep_integrate in query and query_vars for backwards compat
+
 = 1.1.1 =
 * Fix undefined variable warning
 
