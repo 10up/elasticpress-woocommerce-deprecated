@@ -252,10 +252,7 @@ function epwc_translate_args( $query ) {
 	/**
 	 * If we have a WooCommerce specific query, lets hook it to ElasticPress and make the query ElasticSearch friendly
 	 */
-	if ( $epwc_integrate && ! $query->is_search() ) {
-
-		$query->query_vars['ep_integrate'] = true;
-		$query->query['ep_integrate'] = true;
+	if ( $epwc_integrate || $query->is_search() ) {
 
 		// Handles the WC Top Rated Widget
 		if ( has_filter( 'posts_clauses', array( WC()->query, 'order_by_rating_post_clauses' ) ) ) {
@@ -263,12 +260,6 @@ function epwc_translate_args( $query ) {
 			$query->set( 'orderby', 'meta_value_num' );
 			$query->set( 'meta_key', '_wc_average_rating' );
 		}
-
-		/**
-		 * Make sure filters are suppressed
-		 */
-		$query->query['suppress_filters'] = false;
-		$query->set( 'suppress_filters', false );
 
 		/**
 		 * We can't support any special fields parameters
@@ -294,53 +285,67 @@ function epwc_translate_args( $query ) {
 			$query->set( 'meta_query', $meta_query );
 		}
 
-		// Assuming $post_type to be product if empty
-		if ( empty( $post_type ) || 'product' === $post_type ) {
+		/**
+		 * Make sure filters are suppressed
+		 */
+		$query->query['suppress_filters'] = false;
+		$query->set( 'suppress_filters', false );
 
-			/**
-			 * Set orderby from GET param
-			 * Also make sure the orderby param affects only the main query
-			 */
-			if ( ! empty( $_GET['orderby'] ) && $query->is_main_query() ) {
+		/**
+		 * This stuff will mess up search queries
+		 */
+		if ( ! $query->is_search() ) {
+			$query->query_vars['ep_integrate'] = true;
+			$query->query['ep_integrate'] = true;
 
-				switch ( $_GET['orderby'] ) {
-					case 'popularity':
-						$query->set( 'orderby', epwc_get_orderby_meta_mapping( 'total_sales' ) );
-						$query->set( 'order', 'desc' );
-						break;
-					case 'price':
-					case 'price-desc':
-						$query->set( 'orderby', epwc_get_orderby_meta_mapping( '_price' ) );
-						break;
-					case 'rating' :
-						$query->set( 'orderby', epwc_get_orderby_meta_mapping( '_wc_average_rating' ) );
-						$query->set( 'order', 'desc' );
-						break;
-					case 'date':
-						$query->set( 'orderby', epwc_get_orderby_meta_mapping( 'date' ) );
-						break;
-					default:
-						$query->set( 'orderby', epwc_get_orderby_meta_mapping( 'menu_order' ) ); // Order by menu and title.
+			// Assuming $post_type to be product if empty
+			if ( empty( $post_type ) || 'product' === $post_type ) {
+
+				/**
+				 * Set orderby from GET param
+				 * Also make sure the orderby param affects only the main query
+				 */
+				if ( ! empty( $_GET['orderby'] ) && $query->is_main_query() ) {
+
+					switch ( $_GET['orderby'] ) {
+						case 'popularity':
+							$query->set( 'orderby', epwc_get_orderby_meta_mapping( 'total_sales' ) );
+							$query->set( 'order', 'desc' );
+							break;
+						case 'price':
+						case 'price-desc':
+							$query->set( 'orderby', epwc_get_orderby_meta_mapping( '_price' ) );
+							break;
+						case 'rating' :
+							$query->set( 'orderby', epwc_get_orderby_meta_mapping( '_wc_average_rating' ) );
+							$query->set( 'order', 'desc' );
+							break;
+						case 'date':
+							$query->set( 'orderby', epwc_get_orderby_meta_mapping( 'date' ) );
+							break;
+						default:
+							$query->set( 'orderby', epwc_get_orderby_meta_mapping( 'menu_order' ) ); // Order by menu and title.
+					}
+				} else {
+					$orderby = $query->get( 'orderby', 'date' ); // Default to date
+					if ( in_array( $orderby, array( 'meta_value_num', 'meta_value' ) ) ) {
+						$orderby = $query->get( 'meta_key', 'date' ); // Default to date
+					}
+					$query->set( 'orderby', epwc_get_orderby_meta_mapping( $orderby ) );
 				}
-			} else {
-				$orderby = $query->get( 'orderby', 'date' ); // Default to date
-				if ( in_array( $orderby, array( 'meta_value_num', 'meta_value' ) ) ) {
-					$orderby = $query->get( 'meta_key', 'date' ); // Default to date
-				}
-				$query->set( 'orderby', epwc_get_orderby_meta_mapping( $orderby ) );
+			} // Conditional check for orders
+			elseif ( in_array( $post_type, array( 'shop_order', 'shop_order_refund' ) ) || $post_type === array( 'shop_order', 'shop_order_refund' ) ) {
+				$query->set( 'order', 'desc' );
+			} elseif ( 'product_variation' === $post_type ) {
+				$query->set( 'orderby', 'menu_order' );
+				$query->set( 'order', 'asc' );
 			}
-		} // Conditional check for orders
-		elseif ( in_array( $post_type, array( 'shop_order', 'shop_order_refund' ) ) || $post_type === array( 'shop_order', 'shop_order_refund' ) ) {
-			$query->set( 'order', 'desc' );
-		} elseif ( 'product_variation' === $post_type ) {
-			$query->set( 'orderby', 'menu_order' );
-			$query->set( 'order', 'asc' );
-		}
 
-		$orderby = $query->get( 'orderby' );
+			$orderby = $query->get( 'orderby' );
 
-		if ( ! empty( $orderby ) && 'rand' === $orderby ) {
-			$query->set( 'orderby', false ); // Just order by relevance.
+			if ( ! empty( $orderby ) && 'rand' === $orderby ) {
+				$query->set( 'orderby', false ); // Just order by relevance.
+			}
 		}
 	}
 }
