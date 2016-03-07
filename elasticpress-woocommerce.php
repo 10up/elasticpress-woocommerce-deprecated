@@ -252,7 +252,7 @@ function epwc_translate_args( $query ) {
 	/**
 	 * If we have a WooCommerce specific query, lets hook it to ElasticPress and make the query ElasticSearch friendly
 	 */
-	if ( $epwc_integrate ) {
+	if ( $epwc_integrate && ! $query->is_search() ) {
 
 		$query->query_vars['ep_integrate'] = true;
 		$query->query['ep_integrate'] = true;
