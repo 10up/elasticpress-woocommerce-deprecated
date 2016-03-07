@@ -444,6 +444,19 @@ function epwc_formatted_args( $formatted_args, $args ) {
 			'wc-refunded',
 		);
 
+		// Include Custom WooCommerce Order Statuses to this list of front-end display post statuses
+		if ( function_exists( 'wc_get_order_statuses' ) ) {
+
+			$woo_order_statuses = wc_get_order_statuses();
+			if ( ! empty( $woo_order_statuses ) ) {
+				$woo_order_statuses = array_keys( $woo_order_statuses );
+
+				$post_status = array_values( array_unique( array_merge( $post_status, $woo_order_statuses ) ) );
+			}
+		}
+
+		$post_status = apply_filters( 'epwc_valid_front_end_post_statuses', $post_status, $formatted_args, $args );
+
 		// Narrow down to the post parent for product variations
 		if ( 'product_variation' == $args['post_type'] ) {
 			if ( isset( $args['post_parent'] ) && $args['post_parent'] ) {
