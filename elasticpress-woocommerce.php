@@ -117,7 +117,7 @@ add_filter( 'ep_prepare_meta_allowed_protected_keys', 'epwc_whitelist_meta_keys'
  *
  * @since  1.1.3
  */
-add_filter( 'wc_shop_order_search_custom_fields', '__return_false' );
+add_filter( 'woocommerce_shop_order_search_fields', '__return_false' );
 
 /**
  * Make sure all loop shop post ins are IDS. We have to pass post objects here since we override
@@ -378,7 +378,7 @@ function epwc_translate_args( $query ) {
 			if ( 'shop_order' === $post_type ) {
 				$search_fields = $query->get( 'search_fields', array( 'post_title', 'post_content', 'post_excerpt' ) );
 
-				$search_fields['meta'] = array_map( 'wc_clean', apply_filters( 'woocommerce_shop_order_search_fields', array(
+				$search_fields['meta'] = array_map( 'wc_clean', apply_filters( 'epwc_shop_order_search_fields', array(
 					'_order_key',
 					'_billing_company',
 					'_billing_address_1',
