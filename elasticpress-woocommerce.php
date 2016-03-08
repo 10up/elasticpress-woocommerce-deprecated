@@ -113,6 +113,13 @@ function epwc_whitelist_meta_keys( $meta, $post ) {
 add_filter( 'ep_prepare_meta_allowed_protected_keys', 'epwc_whitelist_meta_keys', 10, 2 );
 
 /**
+ * Prevent order fields search meta query
+ *
+ * @since  1.1.3
+ */
+add_filter( 'wc_shop_order_search_custom_fields', '__return_false' );
+
+/**
  * Make sure all loop shop post ins are IDS. We have to pass post objects here since we override
  * the fields=>id query for the layered filter nav query
  *
