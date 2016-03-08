@@ -88,6 +88,26 @@ function epwc_whitelist_meta_keys( $meta, $post ) {
 		'_max_sale_price_variation_id',
 		'_default_attributes',
 		'_swatch_type_options',
+		'_order_key',
+		'_billing_company',
+		'_billing_address_1',
+		'_billing_address_2',
+		'_billing_city',
+		'_billing_postcode',
+		'_billing_country',
+		'_billing_state',
+		'_billing_email',
+		'_billing_phone',
+		'_shipping_address_1',
+		'_shipping_address_2',
+		'_shipping_city',
+		'_shipping_postcode',
+		'_shipping_country',
+		'_shipping_state',
+		'_billing_last_name',
+		'_billing_first_name',
+		'_shipping_first_name',
+		'_shipping_last_name',
 	) ) );
 }
 add_filter( 'ep_prepare_meta_allowed_protected_keys', 'epwc_whitelist_meta_keys', 10, 2 );
@@ -345,6 +365,36 @@ function epwc_translate_args( $query ) {
 
 			if ( ! empty( $orderby ) && 'rand' === $orderby ) {
 				$query->set( 'orderby', false ); // Just order by relevance.
+			}
+		} else {
+			// Search query
+			if ( 'shop_order' === $post_type ) {
+				$search_fields = $query->get( 'search_fields', array( 'post_title', 'post_content', 'post_excerpt' ) );
+
+				$search_fields['meta'] = array_map( 'wc_clean', apply_filters( 'woocommerce_shop_order_search_fields', array(
+					'_order_key',
+					'_billing_company',
+					'_billing_address_1',
+					'_billing_address_2',
+					'_billing_city',
+					'_billing_postcode',
+					'_billing_country',
+					'_billing_state',
+					'_billing_email',
+					'_billing_phone',
+					'_shipping_address_1',
+					'_shipping_address_2',
+					'_shipping_city',
+					'_shipping_postcode',
+					'_shipping_country',
+					'_shipping_state',
+					'_billing_last_name',
+					'_billing_first_name',
+					'_shipping_first_name',
+					'_shipping_last_name',
+				) ) );
+
+				$query->set( 'search_fields', $search_fields );
 			}
 		}
 	}
