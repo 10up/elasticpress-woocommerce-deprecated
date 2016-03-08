@@ -23,6 +23,12 @@ A WordPress plugin that integrates [ElasticPress](https://github.com/10up/Elasti
 
 == Changelog ==
 
+= 1.1.3 =
+* Index order post meta
+* Fix bug that was destroying admin order search queries
+* Prevent WooCommerce from running expensive post meta MySQL query on admin order search
+* Account for custom order statuses
+
 = 1.1.2 =
 * Fix post status indexes term search in admin
 * Set ep_integrate in query and query_vars for backwards compat

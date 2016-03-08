@@ -8,6 +8,14 @@ A WordPress plugin that integrates [ElasticPress](https://github.com/10up/Elasti
 * ElasticPress 1.8+
 * PHP 5.2.4+
 
+## Reindexing
+
+Some versions of ElasticPress WooCommerce require an ElasticPress reindex. When upgrading to or past the following versions, a [reindex](https://github.com/10up/elasticpress#single-site) is necessary:
+
+* 1.1.3
+* 1.1
+* 1.0
+
 ## Usage
 
 Install and activate [ElasticPress](https://github.com/10up/ElasticPress). Install and activate ElasticPress WooCommerce. Note that if you had previously been using ElasticPress, you should re-index after activating ElasticPress WooCommerce.
