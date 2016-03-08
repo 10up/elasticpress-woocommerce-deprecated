@@ -117,7 +117,10 @@ add_filter( 'ep_prepare_meta_allowed_protected_keys', 'epwc_whitelist_meta_keys'
  *
  * @since  1.1.3
  */
-add_filter( 'woocommerce_shop_order_search_fields', '__return_false' );
+function epwc_shop_order_search_fields() {
+	return array();
+}
+add_filter( 'woocommerce_shop_order_search_fields', 'epwc_shop_order_search_fields' );
 
 /**
  * Make sure all loop shop post ins are IDS. We have to pass post objects here since we override
