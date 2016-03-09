@@ -192,10 +192,19 @@ function epwc_translate_args( $query ) {
 
 	$product_name = $query->get( 'product', false );
 
+	$post_parent = $query->get( 'post_parent', false );
+
 	/**
 	 * Do nothing for single product queries
 	 */
 	if ( ! empty( $product_name ) ) {
+		return;
+	}
+
+	/**
+	 * ElasticPress does not yet support post_parent queries
+	 */
+	if ( ! empty( $post_parent ) ) {
 		return;
 	}
 
