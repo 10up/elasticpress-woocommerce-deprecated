@@ -23,6 +23,10 @@ A WordPress plugin that integrates [ElasticPress](https://github.com/10up/Elasti
 
 == Changelog ==
 
+= 1.1.4 =
+* Properly index coupons
+* Don't send post_parent queries to Elasticsearch since EP can't support them
+
 = 1.1.3 =
 * Index order post meta
 * Fix bug that was destroying admin order search queries
