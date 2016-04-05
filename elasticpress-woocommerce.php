@@ -2,7 +2,7 @@
 /**
  * Plugin Name: ElasticPress WooCommerce
  * Description: Integrate ElasticPress and Elasticsearch with WooCommerce
- * Version:     1.1.3
+ * Version:     1.1.4
  * Author:      Taylor Lovett, 10up
  * Author URI:  http://10up.com
  * License:     GPLv2 or later
@@ -18,6 +18,7 @@
 function epwc_post_types( $post_types ) {
 	return array_unique( array_merge( $post_types, array(
 		'shop_order' => 'shop_order',
+		'shop_coupon' => 'shop_coupon',
 		'shop_order_refund' => 'shop_order_refund',
 		'product_variation' => 'product_variation',
 		'product' => 'product',
