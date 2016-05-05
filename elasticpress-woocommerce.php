@@ -388,31 +388,43 @@ function epwc_translate_args( $query ) {
 			}
 		} else {
 			// Search query
-			if ( is_admin() && 'shop_order' === $post_type ) {
+			if ( is_admin() ) {
+				if ( 'shop_order' === $post_type ) {
+					$search_fields = $query->get( 'search_fields', array( 'post_title', 'post_content', 'post_excerpt' ) );
+
+					$search_fields['meta'] = array_map( 'wc_clean', apply_filters( 'epwc_shop_order_search_fields', array(
+						'_order_key',
+						'_billing_company',
+						'_billing_address_1',
+						'_billing_address_2',
+						'_billing_city',
+						'_billing_postcode',
+						'_billing_country',
+						'_billing_state',
+						'_billing_email',
+						'_billing_phone',
+						'_shipping_address_1',
+						'_shipping_address_2',
+						'_shipping_city',
+						'_shipping_postcode',
+						'_shipping_country',
+						'_shipping_state',
+						'_billing_last_name',
+						'_billing_first_name',
+						'_shipping_first_name',
+						'_shipping_last_name',
+					) ) );
+
+					$query->set( 'search_fields', $search_fields );
+				}
+			} else {
 				$search_fields = $query->get( 'search_fields', array( 'post_title', 'post_content', 'post_excerpt' ) );
 
-				$search_fields['meta'] = array_map( 'wc_clean', apply_filters( 'epwc_shop_order_search_fields', array(
-					'_order_key',
-					'_billing_company',
-					'_billing_address_1',
-					'_billing_address_2',
-					'_billing_city',
-					'_billing_postcode',
-					'_billing_country',
-					'_billing_state',
-					'_billing_email',
-					'_billing_phone',
-					'_shipping_address_1',
-					'_shipping_address_2',
-					'_shipping_city',
-					'_shipping_postcode',
-					'_shipping_country',
-					'_shipping_state',
-					'_billing_last_name',
-					'_billing_first_name',
-					'_shipping_first_name',
-					'_shipping_last_name',
-				) ) );
+				// Make sure we search skus on the front end
+				$search_fields['meta'] = array( '_sku' );
+
+				// Search by proper taxonomies on the front end
+				$search_fields['taxonomies'] = array( 'category', 'post_tag', 'product_tag', 'product_cat' );
 
 				$query->set( 'search_fields', $search_fields );
 			}
