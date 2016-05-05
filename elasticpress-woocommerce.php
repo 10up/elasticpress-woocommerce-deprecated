@@ -388,7 +388,7 @@ function epwc_translate_args( $query ) {
 			}
 		} else {
 			// Search query
-			if ( 'shop_order' === $post_type ) {
+			if ( is_admin() && 'shop_order' === $post_type ) {
 				$search_fields = $query->get( 'search_fields', array( 'post_title', 'post_content', 'post_excerpt' ) );
 
 				$search_fields['meta'] = array_map( 'wc_clean', apply_filters( 'epwc_shop_order_search_fields', array(
