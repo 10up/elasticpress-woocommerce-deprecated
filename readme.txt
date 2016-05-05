@@ -2,7 +2,7 @@
 Contributors: tlovett1, joshuaabenazer, 10up
 Tags: debug, woocommerce, elasticpress, elasticsearch, ecommerce, search filters
 Requires at least: 3.7.1
-Tested up to: 4.5
+Tested up to: 4.6
 Stable tag: trunk
 
 Power WooCommerce with Elasticsearch for extremely fast product and order queries.
@@ -22,6 +22,9 @@ A WordPress plugin that integrates [ElasticPress](https://github.com/10up/Elasti
 3. Install the plugin in WordPress.
 
 == Changelog ==
+
+= 1.2 =
+* Search by product sku as well as product taxonomies on front and back end.
 
 = 1.1.4 =
 * Properly index coupons
