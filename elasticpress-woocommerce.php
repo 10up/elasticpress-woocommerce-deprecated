@@ -417,7 +417,9 @@ function epwc_translate_args( $query ) {
 
 					$query->set( 'search_fields', $search_fields );
 				}
-			} else {
+			}
+
+			if ( empty( $post_type ) || 'product' === $post_type ) {
 				$search_fields = $query->get( 'search_fields', array( 'post_title', 'post_content', 'post_excerpt' ) );
 
 				// Make sure we search skus on the front end
