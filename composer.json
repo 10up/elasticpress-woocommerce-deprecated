@@ -1,0 +1,14 @@
+{
+    "name": "10up/elasticpress-woocommerce",
+    "description": "Extension for ElasticPress to handle WooCommerce",
+    "license": "GPLv2",
+    "authors": [
+        {
+            "name": "Taylor Lovett",
+            "email": "taylor.lovett@10up.com"
+        }
+    ],
+    "require": {
+        "10up/elasticpress": "^1.8"
+    }
+}
