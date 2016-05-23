@@ -25,6 +25,8 @@ A WordPress plugin that integrates [ElasticPress](https://github.com/10up/Elasti
 
 = 1.2 =
 * Search by product sku as well as product taxonomies on front and back end.
+* Don't hook into WooCommerce API requests
+* Add composer.json
 
 = 1.1.4 =
 * Properly index coupons

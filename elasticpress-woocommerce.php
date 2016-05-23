@@ -209,6 +209,13 @@ function epwc_translate_args( $query ) {
 		return;
 	}
 
+	/**
+	 * Cant hook into WC API yet
+	 */
+	if ( defined( 'WC_API_REQUEST' ) && WC_API_REQUEST ) {
+		return;
+	}
+
 	// Flag to check and make sure we are in a WooCommerce specific query
 	$epwc_integrate = false;
 
