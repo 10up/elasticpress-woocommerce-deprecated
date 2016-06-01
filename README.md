@@ -5,7 +5,7 @@ A WordPress plugin that integrates [ElasticPress](https://github.com/10up/Elasti
 ## Requirements
 
 * WooCommerce 2.5+
-* ElasticPress 1.8+
+* ElasticPress 2.0+
 * PHP 5.2.4+
 
 ## Reindexing

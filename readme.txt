@@ -13,7 +13,7 @@ A WordPress plugin that integrates [ElasticPress](https://github.com/10up/Elasti
 
 = Requirements: =
 
-* [ElasticPress 1.8+](https://wordpress.org/plugins/elasticpress)
+* [ElasticPress 2.0+](https://wordpress.org/plugins/elasticpress)
 * PHP 5.2.4+
 
 == Installation ==
