@@ -26,6 +26,7 @@ A WordPress plugin that integrates [ElasticPress](https://github.com/10up/Elasti
 = 1.2.1 =
 * Allow orders on the front end to get synced
 * ElasticPress requirement upped to 2.0
+* Bypass ES on coupon search
 
 = 1.2 =
 * Search by product sku as well as product taxonomies on front and back end.

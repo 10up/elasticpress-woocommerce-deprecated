@@ -575,6 +575,23 @@ function epwc_formatted_args( $formatted_args, $args ) {
 add_filter( 'ep_formatted_args',  'epwc_formatted_args' , 10, 2 );
 
 /**
+ * Make search coupons don't go through ES
+ * 
+ * @param  bool $enabled
+ * @param  object $query
+ * @since  1.2.1
+ * @return bool
+ */
+function epwc_blacklist_coupons( $enabled, $query ) {
+	if ( 'shop_coupon' === $query->get( 'post_type' ) ) {
+		return false;
+	}
+
+	return $enabled;
+}
+add_filter( 'ep_elasticpress_enabled', 'epwc_blacklist_coupons', 10 ,2 );
+
+/**
  * Allow order creations on the front end to get synced
  *
  * @since  1.2.1
