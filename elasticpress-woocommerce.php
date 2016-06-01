@@ -2,7 +2,7 @@
 /**
  * Plugin Name: ElasticPress WooCommerce
  * Description: Integrate ElasticPress and Elasticsearch with WooCommerce
- * Version:     1.2
+ * Version:     1.2.1
  * Author:      Taylor Lovett, 10up
  * Author URI:  http://10up.com
  * License:     GPLv2 or later
@@ -573,3 +573,22 @@ function epwc_formatted_args( $formatted_args, $args ) {
 	return $formatted_args;
 }
 add_filter( 'ep_formatted_args',  'epwc_formatted_args' , 10, 2 );
+
+/**
+ * Allow order creations on the front end to get synced
+ *
+ * @since  1.2.1
+ * @param  bool $override
+ * @param  int $post_id
+ * @return bool
+ */
+function epwc_bypass_order_permissions_check( $override, $post_id ) {
+	if ( 'shop_order' === get_post_type( $post_id ) ) {
+		return true;
+	}
+
+	return $override;
+}
+
+add_filter( 'ep_sync_insert_permissions_bypass', 'epwc_bypass_order_permissions_check', 10, 2 );
+
