@@ -9,6 +9,6 @@
         }
     ],
     "require": {
-        "10up/elasticpress": "^1.8"
+        "10up/elasticpress": ">=1.8"
     }
 }
