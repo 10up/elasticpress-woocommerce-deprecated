@@ -23,6 +23,9 @@ A WordPress plugin that integrates [ElasticPress](https://github.com/10up/Elasti
 
 == Changelog ==
 
+= 1.2.2 =
+* Properly order price
+
 = 1.2.1 =
 * Allow orders on the front end to get synced
 * ElasticPress requirement upped to 2.0

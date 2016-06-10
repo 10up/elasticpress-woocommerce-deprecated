@@ -2,7 +2,7 @@
 /**
  * Plugin Name: ElasticPress WooCommerce
  * Description: Integrate ElasticPress and Elasticsearch with WooCommerce
- * Version:     1.2.1
+ * Version:     1.2.2
  * Author:      Taylor Lovett, 10up
  * Author URI:  http://10up.com
  * License:     GPLv2 or later
@@ -360,8 +360,12 @@ function epwc_translate_args( $query ) {
 							$query->set( 'order', 'desc' );
 							break;
 						case 'price':
+							$query->set( 'orderby', epwc_get_orderby_meta_mapping( '_price' ) );
+							$query->set( 'order', 'asc' );
+							break;
 						case 'price-desc':
 							$query->set( 'orderby', epwc_get_orderby_meta_mapping( '_price' ) );
+							$query->set( 'order', 'desc' );
 							break;
 						case 'rating' :
 							$query->set( 'orderby', epwc_get_orderby_meta_mapping( '_wc_average_rating' ) );
