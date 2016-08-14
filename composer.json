@@ -1,7 +1,8 @@
 {
     "name": "10up/elasticpress-woocommerce",
     "description": "Extension for ElasticPress to handle WooCommerce",
-    "license": "GPLv2",
+    "license": "GPL-2.0",
+    "type": "wordpress-plugin",
     "authors": [
         {
             "name": "Taylor Lovett",
